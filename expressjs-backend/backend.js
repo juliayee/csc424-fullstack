@@ -5,6 +5,7 @@ const app = express();
 const port = 8000;
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
+const cors = require('cors');
 
 const users = [
     { username: 'bj', password: 'pass424', },
@@ -14,6 +15,7 @@ const users = [
 
 mongoose.connect('mongodb://localhost/CSC424', { useNewUrlParser: true, useUnifiedTopology: true });
 
+app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
 
