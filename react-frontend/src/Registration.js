@@ -16,7 +16,6 @@ export const Registration = () => {
                 return;
             }
 
-            //delete my code
             const response = await axios.post('http://localhost:8000/account/register', {
                 username,
                 password,
@@ -36,28 +35,31 @@ export const Registration = () => {
     };
 
     return (
-        <div>
-            <h2>User Registration</h2>
-            <label>
-                Username:
-                <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} />
-            </label>
-            <br />
-            <label>
-                Password:
-                <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-            </label>
-            <br />
-            <label>
-                Confirm Password:
-                <input
-                    type="password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                />
-            </label>
-            <br />
-            <button onClick={handleRegistration}>Register</button>
-        </div>
+        <form>
+            <div>
+                <h2>User Registration</h2>
+                <label>
+                    Username:
+                    <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} />
+                </label>
+                <br />
+                <label>
+                    Password:
+                    <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+                </label>
+                <br />
+                <label>
+                    Confirm Password:
+                    <input
+                        type="password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                    />
+                </label>
+                <br />
+                <button onClick={handleRegistration}>Register</button>
+            </div>
+        </form>
+
     );
 };
