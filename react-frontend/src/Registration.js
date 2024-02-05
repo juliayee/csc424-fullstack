@@ -16,7 +16,6 @@ export const Registration = () => {
                 return;
             }
 
-            //delete my code
             const response = await axios.post('http://localhost:8000/account/register', {
                 username,
                 password,
