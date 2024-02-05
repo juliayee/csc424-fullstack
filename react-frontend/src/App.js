@@ -7,6 +7,7 @@ import { ProtectedRoute } from "./utils/ProtectedRoute.js";
 import { fakeAuth } from "./utils/FakeAuth.js";
 import { useAuth } from "./context/AuthProvider";
 import { AuthProvider } from "./context/AuthProvider";
+import Cookies from 'js-cookie';
 import axios from 'axios';
 
 export const AuthContext = React.createContext(null);  // we will use this in other components
@@ -35,7 +36,28 @@ const App = () => {
     setToken(null);
   };
 
-  // random comment
+  const authenticateUser = async (credentials) => {
+    try {
+      const response = await fetch('/account/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(credentials),
+      });
+
+      if (!response.ok) {
+        throw new Error('Authentication failed');
+      }
+
+      const data = await response.json();
+      const receivedToken = data.token;
+      Cookies.set('token', receivedToken, { expires: 7, secure: true });
+
+    } catch (error) {
+      console.error('Authentication error:', error);
+    }
+  };
 
   return (
     <AuthProvider>
@@ -58,9 +80,6 @@ const App = () => {
     </AuthProvider>
   );
 };
-
-
-// ghoeagnboasgbnaseklg;lgsnb
 
 const Navigation = () => {
   const { value } = useAuth();
