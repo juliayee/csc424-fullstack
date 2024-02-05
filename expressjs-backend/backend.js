@@ -26,9 +26,22 @@ const users = {
 
 mongoose.connect('mongodb://localhost:27017', { useNewUrlParser: true, useUnifiedTopology: true });
 
-app.listen(port, () => {
+// app.listen(port, () => {
+//     console.log(`Example app listening at http://localhost:${port}`);
+// });
+
+https
+  .createServer(
+    {
+      key: fs.readFileSync("key.pem"),
+      cert: fs.readFileSync("cert.pem"),
+    },
+    app
+  )
+  .listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`);
-});
+  });
+
 
 //GET
 app.get('/users', (req, res) => {
