@@ -6,15 +6,21 @@ const port = 8000;
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
+const cors = require("cors");
+const bcrypt = require('bcrypt');
 
 // get config vars
 dotenv.config();
 // access config var
-process.env.TOKEN_SECRET;
+const TOKEN_SECRET = process.env.TOKEN_SECRET;
 
-app.use(cors());
+app.use(cors({
+    origin: 'https://localhost:${port}',
+    credentials: true
+}));
 app.use(express.json());
 app.use(cookieParser());
+
 
 const users = {
     users_list: [
@@ -23,8 +29,6 @@ const users = {
         { username: 'user2', password: 'pass2', },
     ]
 };
-
-mongoose.connect('mongodb://localhost:27017', { useNewUrlParser: true, useUnifiedTopology: true });
 
 // app.listen(port, () => {
 //     console.log(`Example app listening at http://localhost:${port}`);
@@ -44,113 +48,106 @@ https
 
 
 //GET
-app.get('/users', (req, res) => {
-    const name = req.query.name;
-    if (name != undefined) {
-        let result = getUserByUsername(name);
-        result = { users_list: result };
-        res.send(result);
-    }
-    else {
-        res.send(users);
-    }
-
+app.get('/users', async(req, res) => {
+    const users = await userServices.getAllUserDetails();
+    res.json(users);
 });
 
-app.get('/users/:username', (req, res) => {
-    const user  = req.params.username;
-    let result = getUserByUsername(user);
+app.get('/authenticate', checkToken, (req, res) => {
+        return res.status(200).send("Authenticated.");
+});
 
-    if (user) {
-        result = {users_list: result};
-        res.send(result);
+//Verify JWT: checks token 
+function checkToken(req, res, next){
+    const token = req.cookies.token;
+
+    if (token) {
+        jwt.verify(token, TOKEN_SECRET, (err, user) => {
+            if (err) {
+                return res.status(403);
+            }
+            req.user = user;
+            next();
+        });
     } else {
-        res.status(404).json({ error: 'User not found' });
+        return res.sendStatus(401);
+    }
+}
+
+//app.use(authRoutes);
+
+// POST
+app.post('/login', async(req, res) => {
+    try{
+        const user = await userServices.validateUser(req.body);
+        
+        if(user){
+            console.log(result.token);
+
+            res.cookie('token', result.token, { httpOnly: true, secure: true });
+            res.status(200).json({message: 'Successful login.'});
+        }
+        else{
+            return res.sendStatus(401).send("Failed login.");
+        }
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).send('Server error login.')
     }
 });
 
+app.post('/register', async(req, res) => {
+    const { user, password, confirmPassword } = req.body;
+
+    try{
+        if(await validPass(password)){
+            if(password != confirmPassword){
+                res.status(400).send('Passwords do not match');
+            }
+            else{
+                const token = userServices.generateToken({username: user});
+                const bcryptPass = await bcrypt.hash(password, 10);
+                const userProfile = {user: user, password: bcryptPass, phone: phone, email: email, token: token};
+
+                const result = await userServices.addUser(userProfile);
+                console.log(result);
+
+                if(result === false){
+                    res.sendStatus(409).send('User already exists.');
+                }
+                else{
+                    res.cookie('token', token, {httpOnly: true, secure: true});
+                    res.sendStatus(200).send('Registered successfully.');
+                }
+
+            }
+        }
+
+    }
+    catch (error) {
+        console.log(error);
+        res.sendStatus(500).send('Server error register.');
+    }
+});
+
+app.post('/logout', (req, res) => {
+    try{
+        res.clearCookie('token');
+        return res.status(200).send('Successful logout.');
+
+    }
+    catch (error) {
+        console.log(error);
+        return res.status(500).send('Server error logout.');
+    }
+});
 
 app.get('/', (req, res) => {
     res.send('Hello World!');
 });
 
-//USE
-//Verify JWT
-app.use((req, res, next) => {
-    const token = req.cookies.token;
-    const myToken = generateToken();
-
-    if (token) {
-        jwt.verify(token, myToken, (err, decoded) => {
-            if (err) {
-                return res.status(401).json({ message: 'Unauthorized' });
-            }
-            req.userId = decoded.userId;
-            next();
-        });
-    } else {
-        next();
-    }
-});
-
-app.use(authRoutes);
-
-// POST
-app.post('/account/login', (req, res) => {
-    const { username, password } = req.body;
-
-    const user = users.find((u) => u.username === username && u.password === password);
-
-    if (user) {
-        const token = generateToken({ username: req.body.username });
-        res.json(token);
-        res.cookie('token', token, { httpOnly: true });
-    }
-    else {
-        res.status(401).json({ error: 'Failed login' });
-    }
-});
-
-app.post('/account/register', (req, res) => {
-    const { username, password, confirmPassword } = req.body;
-
-    if (userAlreadyExists(username)) {
-        return res.status(400).json({ error: 'User already exists' });
-    }
-    if (password != confirmPassword) {
-        return res.status(400).json({ error: 'Passwords do not match' });
-    }
-    if (!isPasswordStrong(password)) {
-        return res.status(400).json({ error: 'Password does not meet strength requirements' });
-    }
-
-    const newUser = {
-        username,
-        password,
-    };
-
-    users.push(newUser);
-
-    res.json({ message: 'User registered successfully' });
-});
-
-app.post('/users', (req, res) => {
-    const userToAdd = req.body;
-    addUser(userToAdd);
-    res.status(201).send(userToAdd).end();
-});
-
 // Helper functions
-const userAlreadyExists = (newUsername) => {
-    const usernameExists = users.users_list.some(user => user.username === newUsername);
-    return !usernameExists;
-};
-
-function isPasswordStrong(password) {
-    const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-    return passwordRegex.test(password);
-}
-
 function generateToken(username) {
     return jwt.sign(username, process.env.TOKEN_SECRET, { expiresIn: '1h' });
 }

@@ -97,8 +97,6 @@ const Navigation = () => {
   );
 };
 
-const axios = require('axios');
-
 // Registration
 axios.post('http://localhost:3000/register', { name: 'user', job: 'developer', password: 'password' })
   .then(response => {

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useAuth } from "./context/AuthProvider";
 
-const Landing = () => {
+export const Landing = () => {
   const { value } = useAuth();
   const [users, setUsers] = useState([]);
 
@@ -26,6 +26,3 @@ useEffect(() => {
     </>
   );
 };
-
-
-export default Landing;

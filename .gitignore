@@ -24,10 +24,10 @@ chrome-user-data
 *.swp
 *.swo
 
-backend/.env
-backend/cert.pem
-backend/csr.pem
-backend/key.pem
+expressjs-backend/.env
+expressjs-backend/cert.pem
+expressjs-backend/csr.pem
+expressjs-backend/key.pem
 
 packages/react-devtools-core/dist
 packages/react-devtools-extensions/chrome/build
