@@ -1,32 +1,33 @@
-import mongoose from "mongoose";
-import userModel from "./user.js";
+import user from './user';
+
+const mongoose = require('mongoose');
+const userModel = require('./user');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
+require('dotenv').config();
 
 // uncomment the following line to view mongoose debug messages
 mongoose.set("debug", true);
 
+const uri = process.env.MONGO_URI;
+
 mongoose
-  .connect("mongodb://127.0.0.1:27017/users", {
+  .connect(uri, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
   .catch((error) => console.log(error));
 
 async function getUsers(name, job) {
-  let result;
-  if (name === undefined && job === undefined) {
-    result = await userModel.find();
-  } else if (name && !job) {
-    result = await findUserByName(name);
-  } else if (job && !name) {
-    result = await findUserByJob(job);
-  }
-  return result;
-}
-
-async function findUserById(id) {
   try {
-    return await userModel.findById(id);
-  } catch (error) {
+    const users = await userModel.find({});
+    return users.map(user => {
+      return {
+        username: user.username,
+      };
+    });
+  }
+  catch (error) {
     console.log(error);
     return undefined;
   }
@@ -34,27 +35,55 @@ async function findUserById(id) {
 
 async function addUser(user) {
   try {
+    const exists = await findUserByName(user.user);
+
+    if (exists == []) {
+      console.log("User Already exists");
+      return false;
+    }
+
     const userToAdd = new userModel(user);
     const savedUser = await userToAdd.save();
     return savedUser;
-  } catch (error) {
+  }
+  catch (error) {
     console.log(error);
     return false;
   }
 }
 
-async function findUserByName(name) {
-  return await userModel.find({ name: name });
+async function authUser(input) {
+  try {
+    if (!input.username || !input.password) {
+      return undefined;
+    }
+
+    const user = await findUserByName(input.username);
+    if (user.length === 0) {
+      return undefined;
+    }
+
+    const isValidPassword = await bcrypt.compare(input.password, user[0].password);
+    if (isValidPassword) {
+      return user[0];
+    } else {
+      return undefined;
+    }
+  } catch (error) {
+    console.log(error);
+    return undefined;
+  }
 }
 
-async function findUserByJob(job) {
-  return await userModel.find({ job: job });
+async function findUserByName(name) {
+  console.log(name);
+  return await userModel.find({ username: name });
 }
 
 export default {
-  addUser,
   getUsers,
-  findUserById,
+  addUser,
+  authUser,
   findUserByName,
-  findUserByJob,
+  generateToken
 };

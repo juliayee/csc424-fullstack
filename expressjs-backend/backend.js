@@ -8,6 +8,12 @@ const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 const cors = require("cors");
 const bcrypt = require('bcrypt');
+const https = require("https");
+const fs = require("fs");
+
+const {isPasswordValid} = require('./passwordReqs');
+const userServices = require('./user-services');
+const user = require('./user');
 
 // get config vars
 dotenv.config();
@@ -21,14 +27,13 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
-
-const users = {
-    users_list: [
-        { username: 'bj', password: 'pass424', },
-        { username: 'user1', password: 'pass1', },
-        { username: 'user2', password: 'pass2', },
-    ]
-};
+// const users = {
+//     users_list: [
+//         { username: 'bj', password: 'pass424', },
+//         { username: 'user1', password: 'pass1', },
+//         { username: 'user2', password: 'pass2', },
+//     ]
+// };
 
 // app.listen(port, () => {
 //     console.log(`Example app listening at http://localhost:${port}`);
@@ -49,7 +54,7 @@ https
 
 //GET
 app.get('/users', async(req, res) => {
-    const users = await userServices.getAllUserDetails();
+    const users = await userServices.getUsers();
     res.json(users);
 });
 
@@ -79,7 +84,7 @@ function checkToken(req, res, next){
 // POST
 app.post('/login', async(req, res) => {
     try{
-        const user = await userServices.validateUser(req.body);
+        const user = await userServices.authUser(req.body);
         
         if(user){
             console.log(result.token);
@@ -101,14 +106,14 @@ app.post('/register', async(req, res) => {
     const { user, password, confirmPassword } = req.body;
 
     try{
-        if(await validPass(password)){
+        if(await isPasswordValid(password)){
             if(password != confirmPassword){
                 res.status(400).send('Passwords do not match');
             }
             else{
-                const token = userServices.generateToken({username: user});
+                const token = generateToken({username: user});
                 const bcryptPass = await bcrypt.hash(password, 10);
-                const userProfile = {user: user, password: bcryptPass, phone: phone, email: email, token: token};
+                const userProfile = {username: user, password: bcryptPass, token: token};
 
                 const result = await userServices.addUser(userProfile);
                 console.log(result);
@@ -147,15 +152,7 @@ app.get('/', (req, res) => {
     res.send('Hello World!');
 });
 
-// Helper functions
+// // Helper functions
 function generateToken(username) {
     return jwt.sign(username, process.env.TOKEN_SECRET, { expiresIn: '1h' });
-}
-
-const getUserByUsername = (name) => {
-    return users['users_list'].filter((user) => user['name'] === name);
-}
-
-function addUser(user){
-    users['users_list'].push(user);
 }
