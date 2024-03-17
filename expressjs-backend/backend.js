@@ -13,7 +13,7 @@ const fs = require("fs");
 
 const {isPasswordValid} = require('./passwordReqs');
 const userServices = require('./user-services');
-const user = require('./user');
+const user1 = require('./user');
 
 // get config vars
 dotenv.config();
