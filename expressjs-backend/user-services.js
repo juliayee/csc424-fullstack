@@ -1,5 +1,4 @@
-import user from './user';
-
+const user = require('./user');
 const mongoose = require('mongoose');
 const userModel = require('./user');
 const jwt = require('jsonwebtoken');
@@ -9,10 +8,10 @@ require('dotenv').config();
 // uncomment the following line to view mongoose debug messages
 mongoose.set("debug", true);
 
-const uri = process.env.MONGO_URI;
+const url = process.env.MONGODB_URL;
 
 mongoose
-  .connect(uri, {
+  .connect(process.env.MONGODB_URL, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
@@ -80,10 +79,7 @@ async function findUserByName(name) {
   return await userModel.find({ username: name });
 }
 
-export default {
-  getUsers,
-  addUser,
-  authUser,
-  findUserByName,
-  generateToken
-};
+exports.getUsers = getUsers;
+exports.addUser = addUser;
+exports.authUser = authUser;
+exports.findUserByName = findUserByName;
