@@ -1,54 +1,65 @@
 import { useAuth } from "./context/AuthProvider";
-import { createContext, useContext, useState } from "react";
+import { useState } from "react";
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 export const Home = () => {
   const { value } = useAuth();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const navigate = useNavigate();
 
-  const logins = [
-    { username: 'user1', password: 'pass1' },
-    { username: 'bj', password: 'pass424' },
-  ]
+  const handleSubmit = async () => {
+    try {
+      const response = await axios.post('https://localhost:8000/login',
+        {user: username, pass: password}, 
+        {withCredentials: true});
+  
+      if (response.status === 200){
+          value.onLogin();
+      } else {
+          alert('Sign in failed.');
+      }
+  } catch (error) {
+      if (error.response.status === 401){
+          alert('Wrong password.');
+      } else {
+          alert('Sign in failed.');
+      }
+  }
+  };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    if (username === logins.username && password === logins.password) {
-      value.username = username;
-      value.password = password;
-      value.onLogin();
-    } else {
-      setError('Invalid username or password');
-    }
+  const handleRegistration = async () => {
+    navigate('/registration');
   };
 
   return (
-    <form>
+    <>
       <h2>Home (Public)</h2>
+
+      <div>
+          <label htmlFor="username">Username</label>
+          <input type="text" id="username" value={username} onChange={(e) => setUsername(e.target.value)}/>
+      </div>
+
+      <div>
+          <label htmlFor="password">Password </label>
+          <input
+              type="password"
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+          />
+      </div>
+
       <button type="button" onClick={handleSubmit}>
-        Sign In
+          Sign In
       </button>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <div>
-        <label htmlFor="username">Username</label>
-        <input
-          type="text"
-          id="username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-        />
-      </div>
-      <div>
-        <label htmlFor="password">Password</label>
-        <input
-          type="password"
-          id="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-      </div>
-    </form>
+
+      <button type="button" onClick={handleRegistration} style={{ marginLeft: '10px' }}>
+          Create Account
+      </button>
+
+  </>
   );
 };

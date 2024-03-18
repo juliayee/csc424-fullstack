@@ -23,6 +23,7 @@ async function getUsers(name, job) {
     return users.map(user => {
       return {
         username: user.username,
+        emaiL: user.email,
       };
     });
   }

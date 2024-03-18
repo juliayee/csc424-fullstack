@@ -1,7 +1,9 @@
 import { Routes, Route, Link, NavLink } from "react-router-dom";
+
 import { Home } from "./Home";
 import { Landing } from "./Landing";
 import { Registration } from "./Registration";
+
 import React, { useState } from "react";
 import { ProtectedRoute } from "./utils/ProtectedRoute.js";
 import { fakeAuth } from "./utils/FakeAuth.js";

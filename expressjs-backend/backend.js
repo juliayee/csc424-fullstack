@@ -103,7 +103,7 @@ app.post('/login', async(req, res) => {
 });
 
 app.post('/register', async(req, res) => {
-    const { user, password, confirmPassword } = req.body;
+    const { user, password, confirmPassword, email } = req.body;
 
     try{
         if(await isPasswordValid(password)){
@@ -113,7 +113,7 @@ app.post('/register', async(req, res) => {
             else{
                 const token = generateToken({username: user});
                 const bcryptPass = await bcrypt.hash(password, 10);
-                const userProfile = {username: user, password: bcryptPass, token: token};
+                const userProfile = {username: user, password: bcryptPass, email: email, token: token};
 
                 const result = await userServices.addUser(userProfile);
                 console.log(result);

@@ -13,6 +13,11 @@ const UserSchema = new mongoose.Schema(
         trim: true,
         minlength: 6, // You can adjust the minimum length as needed
     },
+    email: {
+      type: String,
+      required: true,
+      trim: true,
+    },
     token: {
       type: String,
       require: true,

@@ -1,62 +1,78 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 export const Registration = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [passwordStrengthMessage, setPasswordStrengthMessage] = useState('');
+    const [email, setEmail] = useState('');
+    const navigate = useNavigate();
 
     const handleRegistration = async () => {
         try {
-            // Implement password strength validation on the frontend here
-            if (!isPasswordStrong(password)) {
-                // Display a message to the user indicating that the password is not strong enough
-                setPasswordStrengthMessage('Password should contain at least one capital letter, one number, and one symbol.');
+            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            const isValidEmail = emailRegex.test(email);
+            if(!isValidEmail){
+                alert('Please enter a valid email, i.e.: xxx@xxx.com');
                 return;
             }
 
-            const response = await axios.post('http://localhost:8000/account/register', {
-                username,
-                password,
-                confirmPassword,
+            const response = await axios.post('http://localhost:8000/register', {
+                username: username,
+                password:password,
+                confirmPassword: confirmPassword,
+                email: email
             });
 
-            console.log('Registration successful:', response.data.message);
+            console.log(response.status);
+            if(response.status === 200){
+                alert('Registration successful.');
+                navigate('/home');
+            }
+            else{
+                alert('Invalid password.');
+            }
         }
         catch (error) {
-            console.error('Registration failed:', error.response.data.error);
+            console.error(error.response.status);
+            if (error.response.status === 400){
+                alert("Enter a stronger password.");
+            } else if (error.response.status === 409) {
+                alert("User already exists.")
+            }else {
+                alert("Registration failed.");
+            }
         }
-    };
-
-    const isPasswordStrong = (password) => {
-        const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-        return passwordRegex.test(password);
     };
 
     return (
-        <div>
+        <>
             <h2>User Registration</h2>
-            <label>
-                Username:
-                <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} />
-            </label>
-            <br />
-            <label>
-                Password:
-                <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-            </label>
-            <br />
-            <label>
-                Confirm Password:
-                <input
-                    type="password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                />
-            </label>
-            <br />
-            <button onClick={handleRegistration}>Register</button>
-        </div>
+
+            <div className='form-group'>
+                <label htmlFor='username'>Username</label>
+                <input type='text' id='username' value={username} onChange={(e) => setUsername(e.target.value)}/>
+            </div>
+
+            <div className='form-group'>
+                <label htmlFor='password1'>Password</label>
+                <input type='password' id='password' value={password} onChange={(e) => setPassword(e.target.value)}/>
+            </div>
+
+            <div className='form-group'>
+                <label htmlFor='password2'>Confirm Password</label>
+                <input type='password' id='confirmPassword' value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}/>
+            </div>
+
+            <div className='form-group'>
+                <label htmlFor='email'>Email</label>
+                <input type='text' id='email' value={email} onChange={(e) => setEmail(e.target.value)}/>
+            </div>
+
+            <button type='button' onClick={handleRegistration}>
+                Register
+            </button>
+        </>
     );
 };
