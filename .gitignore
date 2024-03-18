@@ -29,8 +29,7 @@ expressjs-backend/cert.pem
 expressjs-backend/csr.pem
 expressjs-backend/key.pem
 
-react-frontend/reactcert/cert.pem
-react-frontend/reactcert/key.pem
+react-frontend/reactcert
 
 packages/react-devtools-core/dist
 packages/react-devtools-extensions/chrome/build
