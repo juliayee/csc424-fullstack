@@ -1,6 +1,5 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const authRoutes = require('./authRoutes');
 const app = express();
 const port = 8000;
 const cookieParser = require('cookie-parser');
