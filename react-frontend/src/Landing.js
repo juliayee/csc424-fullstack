@@ -1,28 +1,67 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useAuth } from "./context/AuthProvider";
 
 export const Landing = () => {
-  const { value } = useAuth();
   const [users, setUsers] = useState([]);
+  const [filter, setFilter] = useState([]);
 
-useEffect(() => {
-    axios.get('/users')
-      .then(response => setUsers(response.data))
-      .catch(error => console.error('Error fetching users:', error));
+  const getUsers = async () => {
+    try {
+      const response = await axios.get('https://localhost:8000/users');
+      console.log(response.data);
+      setUsers(response.data);
+    } 
+    catch (error) {
+      console.log("Could not get user.");
+    }
+  }
+
+  useEffect(() => {
+    getUsers();
   }, []); 
+
+  const handleFilter = (e) => {
+    setFilter(e.target.value.toLowerCase());
+  };
+
+  const filterUsers = users.filter(user => {
+    return (
+      user.username.toLowerCase().includes(filter) ||
+      user.email.toLowerCase().includes(filter) ||
+      user.phone.toLowerCase().includes(filter)
+    );
+  });
 
   return (
     <>
-      <h2>Contacts List (Protected)</h2>
-     <div> Authenticated as {value.token}</div>
-     <div> 
-     <ul>
-        {users.map(user => (
-          <li key={user.id}>{user.username}</li>
-        ))}
-      </ul>
-     </div>
+      <h2>Landing (Protected)</h2>
+
+      <div className='filter-container'>
+        <input
+          type="text"
+          placeholder="Filter by username or email."
+          onChange={handleFilter}
+        />
+      </div>
+
+      <div className="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Username</th>
+              <th>Email</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filterUsers.map((user, index) => (
+              <tr key={index}>
+                <td>{user.username || 'N/A'}</td>
+                <td>{user.email || 'N/A'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </>
   );
 };
