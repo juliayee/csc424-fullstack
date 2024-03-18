@@ -9,7 +9,6 @@ import { ProtectedRoute } from "./utils/ProtectedRoute.js";
 import { useAuth } from "./context/AuthProvider";
 import { AuthProvider } from "./context/AuthProvider";
 
-import Cookies from 'js-cookie';
 import axios from 'axios';
 
 export const AuthContext = React.createContext(null);  // we will use this in other components
