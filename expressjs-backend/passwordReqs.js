@@ -25,14 +25,17 @@ function isLengthValid(password, minLength) {
   
   // Function to validate password based on all requirements
   function isPasswordValid(password, minLength) {
+      console.log("in paswrod", password);
       if (isLengthValid(password, minLength) &&
       hasUppercase(password) &&
       hasLowercase(password) &&
       hasDigit(password) &&
       hasSpecialCharacter(password)){
+        console.log("true");
         return true;
       }
       else{
+        console.log("undef");
         return undefined;
       }
   }

@@ -18,7 +18,7 @@ export const Registration = () => {
                 return;
             }
 
-            const response = await axios.post('http://localhost:8000/register', {
+            const response = await axios.post('https://localhost:8000/register', {
                 username: username,
                 password:password,
                 confirmPassword: confirmPassword,
@@ -27,7 +27,7 @@ export const Registration = () => {
 
             console.log(response.status);
             if(response.status === 200){
-                alert('Registration successful.');
+                alert('Registration successful. Redirecting to home to sign in.');
                 navigate('/home');
             }
             else{

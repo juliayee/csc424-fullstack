@@ -3,12 +3,14 @@ const mongoose = require('mongoose');
 const userModel = require('./user');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-require('dotenv').config();
+const dotenv = require('dotenv');
+dotenv.config();
 
 // uncomment the following line to view mongoose debug messages
 mongoose.set("debug", true);
 
 const url = process.env.MONGODB_URL;
+console.log(url);
 
 mongoose
   .connect(process.env.MONGODB_URL, {
@@ -17,7 +19,7 @@ mongoose
   })
   .catch((error) => console.log(error));
 
-async function getUsers(name, job) {
+async function getUsers() {
   try {
     const users = await userModel.find({});
     return users.map(user => {
@@ -35,7 +37,7 @@ async function getUsers(name, job) {
 
 async function addUser(user) {
   try {
-    const exists = await findUserByName(user.user);
+    const exists = await findUserByName(user.username);
 
     if (exists == []) {
       console.log("User Already exists");
@@ -54,21 +56,23 @@ async function addUser(user) {
 
 async function authUser(input) {
   try {
-    if (!input.username || !input.password) {
-      return undefined;
+    if (input.username && input.password) {
+      const user = await findUserByName(input.username);
+      if (user.length === 0) {
+        return undefined;
+      }
+      else{
+        const isValidPassword = await bcrypt.compare(input.password, user[0].password);
+        if (isValidPassword) {
+          return user[0];
+        } else {
+          return undefined;
+        }
+      }   
     }
-
-    const user = await findUserByName(input.username);
-    if (user.length === 0) {
+    else{
       return undefined;
-    }
-
-    const isValidPassword = await bcrypt.compare(input.password, user[0].password);
-    if (isValidPassword) {
-      return user[0];
-    } else {
-      return undefined;
-    }
+    }    
   } catch (error) {
     console.log(error);
     return undefined;

@@ -12,9 +12,10 @@ export const Home = () => {
   const handleSubmit = async () => {
     try {
       const response = await axios.post('https://localhost:8000/login',
-        {user: username, pass: password}, 
-        {withCredentials: true});
+        {username: username, password: password}); 
+        //{withCredentials: true});
   
+      console.log(response.status);
       if (response.status === 200){
           value.onLogin();
       } else {
@@ -37,20 +38,15 @@ export const Home = () => {
     <>
       <h2>Home (Public)</h2>
 
-      <div>
-          <label htmlFor="username">Username</label>
-          <input type="text" id="username" value={username} onChange={(e) => setUsername(e.target.value)}/>
-      </div>
+      <div className='form-group'>
+            <label htmlFor='username'>Username</label>
+            <input type='text' id='username' value={username} onChange={(e) => setUsername(e.target.value)}/>
+        </div>
 
-      <div>
-          <label htmlFor="password">Password </label>
-          <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-          />
-      </div>
+        <div className='form-group'>
+            <label htmlFor='password'>Password</label>
+            <input type='password' id='password' value={password} onChange={(e) => setPassword(e.target.value)}/>
+        </div>
 
       <button type="button" onClick={handleSubmit}>
           Sign In

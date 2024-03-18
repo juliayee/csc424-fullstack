@@ -8,7 +8,7 @@ export const Landing = () => {
   const getUsers = async () => {
     try {
       const response = await axios.get('https://localhost:8000/users');
-      console.log(response.data);
+      //console.log(response.data);
       setUsers(response.data);
     } 
     catch (error) {
@@ -24,11 +24,10 @@ export const Landing = () => {
     setFilter(e.target.value.toLowerCase());
   };
 
-  const filterUsers = users.filter(user => {
+  const filterUsers = users.filter(username => {
     return (
-      user.username.toLowerCase().includes(filter) ||
-      user.email.toLowerCase().includes(filter) ||
-      user.phone.toLowerCase().includes(filter)
+      username.username.toLowerCase().includes(filter) ||
+      username.email.toLowerCase().includes(filter)
     );
   });
 
@@ -53,10 +52,10 @@ export const Landing = () => {
             </tr>
           </thead>
           <tbody>
-            {filterUsers.map((user, index) => (
+            {filterUsers.map((username, index) => (
               <tr key={index}>
-                <td>{user.username || 'N/A'}</td>
-                <td>{user.email || 'N/A'}</td>
+                <td>{username.username || 'N/A'}</td>
+                <td>{username.email || 'N/A'}</td>
               </tr>
             ))}
           </tbody>

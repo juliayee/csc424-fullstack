@@ -19,10 +19,11 @@ dotenv.config();
 // access config var
 const TOKEN_SECRET = process.env.TOKEN_SECRET;
 
-app.use(cors({
-    origin: 'https://localhost:${port}',
-    credentials: true
-}));
+// app.use(cors({
+//     origin: 'https://localhost:3000',
+//     credentials: true
+// }));
+app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
 
@@ -33,10 +34,6 @@ app.use(cookieParser());
 //         { username: 'user2', password: 'pass2', },
 //     ]
 // };
-
-// app.listen(port, () => {
-//     console.log(`Example app listening at http://localhost:${port}`);
-// });
 
 https
   .createServer(
@@ -58,7 +55,7 @@ app.get('/users', async(req, res) => {
 });
 
 app.get('/authenticate', checkToken, (req, res) => {
-        return res.status(200).send("Authenticated.");
+    return res.status(200).send("Authenticated.");
 });
 
 //Verify JWT: checks token 
@@ -68,7 +65,7 @@ function checkToken(req, res, next){
     if (token) {
         jwt.verify(token, TOKEN_SECRET, (err, user) => {
             if (err) {
-                return res.status(403);
+                return res.sendStatus(403);
             }
             req.user = user;
             next();
@@ -83,55 +80,65 @@ function checkToken(req, res, next){
 // POST
 app.post('/login', async(req, res) => {
     try{
-        const user = await userServices.authUser(req.body);
+        console.log('login');
+        const result = await userServices.authUser(req.body);
         
-        if(user){
+        if(result){
             console.log(result.token);
 
-            res.cookie('token', result.token, { httpOnly: true, secure: true });
-            res.status(200).json({message: 'Successful login.'});
+            //res.cookie('token', result.token, { httpOnly: true, secure: true });
+            return res.status(200).send('Successful login.');
         }
         else{
-            return res.sendStatus(401).send("Failed login.");
+            return res.status(401).send("Failed login.");
         }
     }
     catch (error) {
         console.log(error);
-        res.status(500).send('Server error login.')
+        return res.status(500).send('Server error login.')
     }
 });
 
 app.post('/register', async(req, res) => {
-    const { user, password, confirmPassword, email } = req.body;
+    console.log('post reg');
+    const { username, password, confirmPassword, email } = req.body;
+
+    console.log(username, password, confirmPassword, email);
 
     try{
-        if(await isPasswordValid(password)){
+        if(isPasswordValid(password, 6)){
             if(password != confirmPassword){
-                res.status(400).send('Passwords do not match');
+                return res.status(400).send('Passwords do not match');
             }
             else{
-                const token = generateToken({username: user});
+                const token = generateToken({username: username});
+                console.log(token);
                 const bcryptPass = await bcrypt.hash(password, 10);
-                const userProfile = {username: user, password: bcryptPass, email: email, token: token};
+                console.log(bcryptPass);
+                const userProfile = {username: username, password: bcryptPass, email: email, token: token};
+                console.log(userProfile);
 
                 const result = await userServices.addUser(userProfile);
                 console.log(result);
 
                 if(result === false){
-                    res.sendStatus(409).send('User already exists.');
+                    return res.status(409).send('User already exists.');
                 }
                 else{
-                    res.cookie('token', token, {httpOnly: true, secure: true});
-                    res.sendStatus(200).send('Registered successfully.');
+                    //res.cookie('token', token, {httpOnly: true, secure: true});
+                    return res.status(200).send('Registered successfully.');
                 }
 
             }
+        }
+        else{
+            return res.status(401).send('Invalid password.');
         }
 
     }
     catch (error) {
         console.log(error);
-        res.sendStatus(500).send('Server error register.');
+        return res.status(500).send('Server error register.');
     }
 });
 
