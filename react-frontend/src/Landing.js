@@ -3,12 +3,11 @@ import axios from 'axios';
 
 export const Landing = () => {
   const [users, setUsers] = useState([]);
-  const [filter, setFilter] = useState([]);
+  const [filter, setFilter] = useState('');
 
   const getUsers = async () => {
     try {
       const response = await axios.get('https://localhost:8000/users');
-      //console.log(response.data);
       setUsers(response.data);
     } 
     catch (error) {
@@ -24,12 +23,11 @@ export const Landing = () => {
     setFilter(e.target.value.toLowerCase());
   };
 
-  const filterUsers = users.filter(username => {
-    return (
-      username.username.toLowerCase().includes(filter) ||
-      username.email.toLowerCase().includes(filter)
-    );
-  });
+  // Filter the users based on username or email
+  const filteredUsers = users.filter(user =>
+    user.username.toLowerCase().includes(filter) ||
+    user.email.toLowerCase().includes(filter)
+  );
 
   return (
     <>
@@ -52,10 +50,10 @@ export const Landing = () => {
             </tr>
           </thead>
           <tbody>
-            {filterUsers.map((username, index) => (
+            {filteredUsers.length > 0 && filteredUsers.map((user, index) => (
               <tr key={index}>
-                <td>{username.username || 'N/A'}</td>
-                <td>{username.email || 'N/A'}</td>
+                <td>{user.username}</td>
+                <td>{user.email}</td>
               </tr>
             ))}
           </tbody>

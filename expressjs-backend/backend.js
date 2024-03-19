@@ -79,6 +79,7 @@ function checkToken(req, res, next){
 
 // POST
 app.post('/login', async(req, res) => {
+    console.log("login body", req.body)
     try{
         console.log('login');
         const result = await userServices.authUser(req.body);
@@ -88,8 +89,7 @@ app.post('/login', async(req, res) => {
 
             //res.cookie('token', result.token, { httpOnly: true, secure: true });
             return res.status(200).send('Successful login.');
-        }
-        else{
+        } else{
             return res.status(401).send("Failed login.");
         }
     }
@@ -116,6 +116,7 @@ app.post('/register', async(req, res) => {
                 const bcryptPass = await bcrypt.hash(password, 10);
                 console.log(bcryptPass);
                 const userProfile = {username: username, password: bcryptPass, email: email, token: token};
+                //const userProfile = {username: username, password: password, email: email, token: token};
                 console.log(userProfile);
 
                 const result = await userServices.addUser(userProfile);
@@ -146,7 +147,6 @@ app.post('/logout', (req, res) => {
     try{
         res.clearCookie('token');
         return res.status(200).send('Successful logout.');
-
     }
     catch (error) {
         console.log(error);

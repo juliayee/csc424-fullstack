@@ -1,4 +1,5 @@
 import { Routes, Route, NavLink } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
 
 import { Home } from "./Home";
 import { Landing } from "./Landing";
@@ -8,6 +9,7 @@ import React from "react";
 import { ProtectedRoute } from "./utils/ProtectedRoute.js";
 import { useAuth } from "./context/AuthProvider";
 import { AuthProvider } from "./context/AuthProvider";
+
 
 import axios from 'axios';
 
@@ -33,11 +35,13 @@ const App = () => {
 
 const Navigation = () => {
   const { value } = useAuth();
+  const navigate = useNavigate();
 
   const handleLogout = async () => {
     try {
-      await axios.post('https://localhost:8000/logout', {}, {withCredentials: true});
+      await axios.post('https://localhost:8000/logout', {});
       value.onLogout();
+      navigate('/home');
     } catch (error) {
       console.log("Couldn't log out.", error);
     }

@@ -58,17 +58,20 @@ async function authUser(input) {
   try {
     if (input.username && input.password) {
       const user = await findUserByName(input.username);
-      if (user.length === 0) {
-        return undefined;
+
+      if(!user){
+        return;
       }
       else{
-        const isValidPassword = await bcrypt.compare(input.password, user[0].password);
-        if (isValidPassword) {
-          return user[0];
+        console.log("Checking passwords", input.password, "second", user.password);
+        const validPassword = await bcrypt.compare(input.password, user.password);
+        if (validPassword) {
+          return user;
         } else {
           return undefined;
-        }
-      }   
+        } 
+      }
+
     }
     else{
       return undefined;
@@ -81,7 +84,7 @@ async function authUser(input) {
 
 async function findUserByName(name) {
   console.log(name);
-  return await userModel.find({ username: name });
+  return await userModel.findOne({ username: name });
 }
 
 exports.getUsers = getUsers;
