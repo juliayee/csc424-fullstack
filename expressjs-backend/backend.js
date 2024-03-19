@@ -1,6 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
-var app = express();
+const app = express();
 const port = 8000;
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
@@ -11,7 +11,7 @@ const https = require("https");
 const fs = require("fs");
 const helmet = require('helmet');
 
-const {isPasswordValid} = require('./passwordReqs');
+const { isPasswordValid } = require('./passwordReqs');
 const userServices = require('./user-services');
 const user1 = require('./user');
 
@@ -20,22 +20,10 @@ dotenv.config();
 // access config var
 const TOKEN_SECRET = process.env.TOKEN_SECRET;
 
-// app.use(cors({
-//     origin: 'https://localhost:3000',
-//     credentials: true
-// }));
 app.use(cors());
 app.use(helmet());
 app.use(express.json());
 app.use(cookieParser());
-
-// const users = {
-//     users_list: [
-//         { username: 'bj', password: 'pass424', },
-//         { username: 'user1', password: 'pass1', },
-//         { username: 'user2', password: 'pass2', },
-//     ]
-// };
 
 https
   .createServer(
