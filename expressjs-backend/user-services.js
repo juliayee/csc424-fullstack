@@ -63,7 +63,7 @@ async function authUser(input) {
         return;
       }
       else{
-        console.log("Checking passwords", input.password, "second", user.password);
+        // console.log("Checking passwords", input.password, "second", user.password);
         const validPassword = await bcrypt.compare(input.password, user.password);
         if (validPassword) {
           return user;
