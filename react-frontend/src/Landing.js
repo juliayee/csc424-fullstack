@@ -45,9 +45,7 @@ export const Landing = () => {
 
       <div className="table-container">
         {filteredUsers && filteredUsers.map((user, index) => (
-          <div key={index}>
-            <p>{user.username} - {user.emaiL}</p>
-          </div>
+            <p key={index}>{user.username} - {user.emaiL}</p>
         ))}
       </div>
     </>
