@@ -1,6 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const app = express();
+var app = express();
 const port = 8000;
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
@@ -9,6 +9,7 @@ const cors = require("cors");
 const bcrypt = require('bcrypt');
 const https = require("https");
 const fs = require("fs");
+const helmet = require('helmet');
 
 const {isPasswordValid} = require('./passwordReqs');
 const userServices = require('./user-services');
@@ -24,6 +25,7 @@ const TOKEN_SECRET = process.env.TOKEN_SECRET;
 //     credentials: true
 // }));
 app.use(cors());
+app.use(helmet());
 app.use(express.json());
 app.use(cookieParser());
 
@@ -102,8 +104,6 @@ app.post('/login', async(req, res) => {
 app.post('/register', async(req, res) => {
     console.log('post reg');
     const { username, password, confirmPassword, email } = req.body;
-
-    console.log(username, password, confirmPassword, email);
 
     try{
         if(isPasswordValid(password, 6)){
